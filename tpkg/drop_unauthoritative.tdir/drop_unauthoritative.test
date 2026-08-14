@@ -1,0 +1,81 @@
+# #-- drop_unauthoritative.test --#
+# source the master var file when it's there
+[ -f ../.tpkg.var.master ] && source ../.tpkg.var.master
+# use .tpkg.var.test for in test variable passing
+[ -f .tpkg.var.test ] && source .tpkg.var.test
+. ../common.sh
+
+PRE="../.."
+TPKG_NSD="$PRE/nsd"
+
+exit_code=0
+
+#
+# drop-unauthoritative: no
+#
+$TPKG_NSD -c $(pwd)/drop_unauthoritative_no.conf -V 5 -a 127.0.0.1 -p $TPKG_PORT
+wait_nsd_up nsd.log
+
+dig -4 @127.0.0.1 -p ${TPKG_PORT} +timeout=1 +noedns www.example.net \
+  > drop_unauthoritative_no.query 2>&1
+if [ ${?} -eq 0 ] && grep 'status: NOERROR' drop_unauthoritative_no.query >/dev/null \
+                  && grep 'www\.example\.net\.' drop_unauthoritative_no.query >/dev/null; then
+  echo "Query for hosted zone with drop-unauthoritative: no was correct"
+else
+  exit_code=1
+  echo "Query for hosted zone with drop-unauthoritative: no was incorrect"
+  echo "dig:"
+  cat drop_unauthoritative_no.query
+fi
+
+dig -4 @127.0.0.1 -p ${TPKG_PORT} +timeout=1 +tries=1 +noedns www.example.org \
+  > drop_unauthoritative_no.unserved 2>&1
+if [ ${?} -eq 0 ] && grep 'status: REFUSED' drop_unauthoritative_no.unserved >/dev/null; then
+  echo "Query for unserved zone with drop-unauthoritative: no was correct"
+else
+  exit_code=1
+  echo "Query for unserved zone with drop-unauthoritative: no was incorrect"
+  echo "dig:"
+  cat drop_unauthoritative_no.unserved
+fi
+
+kill_from_pidfile nsd.pid
+
+cat nsd.log
+rm -f nsd.log nsd.pid
+
+#
+# drop-unauthoritative: yes
+#
+$TPKG_NSD -c $(pwd)/drop_unauthoritative_yes.conf -V 5 -a 127.0.0.1 -p $TPKG_PORT
+wait_nsd_up nsd.log
+
+dig -4 @127.0.0.1 -p ${TPKG_PORT} +timeout=1 +noedns www.example.net \
+  > drop_unauthoritative_yes.query 2>&1
+if [ ${?} -eq 0 ] && grep 'status: NOERROR' drop_unauthoritative_yes.query >/dev/null \
+                  && grep 'www\.example\.net\.' drop_unauthoritative_yes.query >/dev/null; then
+  echo "Query for hosted zone with drop-unauthoritative: yes was correct"
+else
+  exit_code=1
+  echo "Query for hosted zone with drop-unauthoritative: yes was incorrect"
+  echo "dig:"
+  cat drop_unauthoritative_yes.query
+fi
+
+dig -4 @127.0.0.1 -p ${TPKG_PORT} +timeout=1 +tries=1 +noedns www.example.org \
+  > drop_unauthoritative_yes.unserved 2>&1
+if [ ${?} -eq 9 ] && grep 'timed out' drop_unauthoritative_yes.unserved >/dev/null; then
+  echo "Query for unserved zone with drop-unauthoritative: yes was correct"
+else
+  exit_code=1
+  echo "Query for unserved zone with drop-unauthoritative: yes was incorrect"
+  echo "dig:"
+  cat drop_unauthoritative_yes.unserved
+fi
+
+kill_from_pidfile nsd.pid
+
+cat nsd.log
+rm -f nsd.log nsd.pid
+
+exit ${exit_code}

@@ -87,6 +87,7 @@ struct nsd_options {
 	int hide_version;
 	int hide_identity;
 	int drop_updates;
+	int drop_unauthoritative;
 	int do_ip4;
 	int do_ip6;
 	const char* identity;

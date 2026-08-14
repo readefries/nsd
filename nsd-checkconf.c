@@ -632,6 +632,8 @@ config_test_print_server(nsd_options_type* opt)
 	printf("\thide-version: %s\n", opt->hide_version?"yes":"no");
 	printf("\thide-identity: %s\n", opt->hide_identity?"yes":"no");
 	printf("\tdrop-updates: %s\n", opt->drop_updates?"yes":"no");
+	printf("\tdrop-unauthoritative: %s\n",
+		opt->drop_unauthoritative ? "yes" : "no");
 	printf("\ttcp-reject-overflow: %s\n",
 		opt->tcp_reject_overflow ? "yes" : "no");
 	print_string_var("identity:", opt->identity);

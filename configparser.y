@@ -100,6 +100,7 @@ struct component {
 %token VAR_VERSION
 %token VAR_IDENTITY
 %token VAR_NSID
+%token VAR_DROP_UNAUTHORITATIVE
 %token VAR_TCP_COUNT
 %token VAR_TCP_REJECT_OVERFLOW
 %token VAR_TCP_QUERY_COUNT
@@ -326,6 +327,8 @@ server_option:
     { cfg_parser->opt->hide_identity = $2; }
   | VAR_DROP_UPDATES boolean
     { cfg_parser->opt->drop_updates = $2; }
+  | VAR_DROP_UNAUTHORITATIVE boolean
+    { cfg_parser->opt->drop_unauthoritative = $2; }
   | VAR_IP4_ONLY boolean
     { if($2) { cfg_parser->opt->do_ip4 = 1; cfg_parser->opt->do_ip6 = 0; } }
   | VAR_IP6_ONLY boolean
@@ -1483,5 +1486,4 @@ parse_catalog_role(const char *str, int *role)
 	}
 	return 1;
 }
-
 

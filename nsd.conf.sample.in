@@ -137,6 +137,10 @@ server:
 	# Drop UPDATE queries
 	# drop-updates: no
 
+	# Drop queries for zones this server is not authoritative for,
+	# instead of replying with REFUSED/NXDOMAIN/SERVFAIL.
+	# drop-unauthoritative: no
+
 	# version string the server responds with for chaos queries.
 	# default is 'NSD x.y.z' with the server's version number.
 	# version: "NSD"
@@ -610,4 +614,3 @@ remote-control:
 	# rrl-whitelist: dnskey
 	# rrl-whitelist: positive
 	# rrl-whitelist: all
-
