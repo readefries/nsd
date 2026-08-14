@@ -413,6 +413,11 @@ queries.  Default is no.
 .B drop\-updates:\fR <yes or no>
 If set to yes, drop received packets with the UPDATE opcode.  Default is no.
 .TP
+.B drop\-unauthoritative:\fR <yes or no>
+If set to yes, silently drop queries for zones that this NSD server is not
+authoritative for, instead of returning explicit negative replies such as
+REFUSED or NXDOMAIN for those unauthoritative lookups.  Default is no.
+.TP
 .B use\-systemd:\fR <yes or no>
 This option is deprecated and ignored.  If compiled with libsystemd,
 NSD signals readiness to systemd and use of the option is not necessary.

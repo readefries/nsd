@@ -73,6 +73,7 @@ nsd_options_create(region_type* region)
 	opt->hide_version = 0;
 	opt->hide_identity = 0;
 	opt->drop_updates = 0;
+	opt->drop_unauthoritative = 0;
 	opt->do_ip4 = 1;
 	opt->do_ip6 = 1;
 	opt->identity = 0;

@@ -458,8 +458,20 @@ answer_notify(struct nsd* nsd, struct query *query)
 		dname_to_string(query->qname, NULL)));
 
 	zone_opt = zone_options_find(nsd->options, query->qname);
-	if(!zone_opt)
+	if(!zone_opt) {
+		/* Optional hardening: hide non-authoritative zones by dropping
+		 * the query instead of returning an explicit negative reply. */
+		if(nsd->options->drop_unauthoritative) {
+			if (verbosity >= 2) {
+				char address[128];
+				addr2str(&query->client_addr, address, sizeof(address));
+				VERBOSITY(2, (LOG_INFO, "notify for %s from %s discarded (drop-unauthoritative: yes, no matching zone)",
+					dname_to_string(query->qname, NULL), address));
+			}
+			return query_error(query, NSD_RC_DISCARD);
+		}
 		return query_error(query, NSD_RC_NXDOMAIN);
+	}
 
 	if(!nsd->this_child) /* we are in debug mode or something */
 		return query_error(query, NSD_RC_SERVFAIL);
@@ -1805,6 +1817,19 @@ query_process(query_type *q, nsd_type *nsd, uint32_t *now_p)
 	}
 
 	answer_query(nsd, q);
+	/* Optional hardening: hide "not authoritative for this zone"
+	 * by discarding instead of returning REFUSED/Not Authoritative. */
+	if(nsd->options->drop_unauthoritative
+		&& RCODE(q->packet) == RCODE_REFUSE
+		&& q->zone == NULL) {
+		if (verbosity >= 2) {
+			char address[128];
+			addr2str(&q->client_addr, address, sizeof(address));
+			VERBOSITY(2, (LOG_INFO, "query %s from %s discarded (drop-unauthoritative: yes, no matching zone)",
+				dname_to_string(q->qname, NULL), address));
+		}
+		return query_error(q, NSD_RC_DISCARD);
+	}
 
 	return QUERY_PROCESSED;
 }

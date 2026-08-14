@@ -1,0 +1,22 @@
+# #-- drop_unauthoritative.pre --#
+# source the master var file when it's there
+[ -f ../.tpkg.var.master ] && source ../.tpkg.var.master
+# use .tpkg.var.test for in test variable passing
+[ -f .tpkg.var.test ] && source .tpkg.var.test
+. ../common.sh
+
+# start NSD
+get_random_port 1
+TPKG_PORT=${RND_PORT}
+
+echo "TPKG_PORT=${TPKG_PORT}" >> .tpkg.var.test
+
+sed -e "s/NSD_DROP_UNAUTHORITATIVE/no/g" \
+    drop_unauthoritative.conf > drop_unauthoritative_no.conf
+
+[[ ${?} -eq 0 ]] || exit 1
+
+sed -e "s/NSD_DROP_UNAUTHORITATIVE/yes/g" \
+    drop_unauthoritative.conf > drop_unauthoritative_yes.conf
+
+[[ ${?} -eq 0 ]] || exit 1
