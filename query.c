@@ -1821,7 +1821,7 @@ query_process(query_type *q, nsd_type *nsd, uint32_t *now_p)
 	 * by discarding instead of returning REFUSED/Not Authoritative. */
 	if(nsd->options->drop_unauthoritative
 		&& RCODE(q->packet) == RCODE_REFUSE
-		&& q->edns.ede == EDE_NOT_AUTHORITATIVE) {
+		&& q->zone == NULL) {
 		if (verbosity >= 2) {
 			char address[128];
 			addr2str(&q->client_addr, address, sizeof(address));

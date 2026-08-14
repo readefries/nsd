@@ -138,7 +138,7 @@ server:
 	# drop-updates: no
 
 	# Drop queries for zones this server is not authoritative for,
-	# instead of replying with REFUSED/NXDOMAIN/SERVFAIL.
+	# instead of replying with REFUSED/NXDOMAIN.
 	# drop-unauthoritative: no
 
 	# version string the server responds with for chaos queries.
